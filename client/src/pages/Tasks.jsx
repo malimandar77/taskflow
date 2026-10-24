@@ -167,6 +167,7 @@ const Tasks = () => {
     } catch (err) {
       if (axios.isCancel(err) || err?.name === "CanceledError") return;
       console.error(err);
+      addToast(err.response?.data?.message || "Couldn't load tasks.", "error");
     } finally {
       if (abortControllerRef.current === controller) {
         setLoading(false);
@@ -213,10 +214,14 @@ const Tasks = () => {
   };
 
   const handleDelete = async () => {
-    await api.delete(`/tasks/${deleteId}`);
-    addToast("Task deleted.", "info");
-    setDeleteId(null);
-    fetchTasks();
+    try {
+      await api.delete(`/tasks/${deleteId}`);
+      addToast("Task deleted.", "info");
+      setDeleteId(null);
+      fetchTasks();
+    } catch (err) {
+      addToast(err.response?.data?.message || "Couldn't delete the task.", "error");
+    }
   };
 
   // ── Badges ─────────────────────────────
